@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+
+<div class="container">
+<div class="container-2">
+
+<form method="POST">
+    <input type="text" name="student_id" list="students">    
+        <datalist class="students">
+            {% for student in students_db %}
+            <option>
+                {{ student[0] }} - {{ student[2] }}
+            </option>
+            {% endfor %}
+        </datalist>
+        <input type="submit" value="Enter">
+</form>
+
+</div>
+<div class="container-3">
+    {% for info in student_info[0] %}
+    <br>{{ info }}
+    {% endfor %}
+</div>
+</div>
+
+{% endblock %}

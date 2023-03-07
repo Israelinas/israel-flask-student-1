@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+
+<h3>Hello {{ teachers[0][1] }}, {{ message }}</h3>
+
+<div class="attendance-div">
+    {% for course in active_courses %}
+    <h4>{{ course[0] }} - {{ course[1] }}</h4>
+
+
+    <table class="attendance-table">
+        <thead class="attendance-thead">
+            <tr class="attendance-tr">
+                <th class="attendance-th">Date</th>
+                <th class="attendance-th">Student Name</th>
+                <th class="attendance-th">Course Num</th>
+                <th class="attendance-th">Course Name</th>
+                <th class="attendance-th">Present</th>
+            </tr>
+        </thead>
+        {% for student in students %}
+        <form method="POST">
+            <tbody>
+                <tr class="attendance-tr">
+                    <td class="attendance-td">
+                        <!-- {% if student[2] == course[0] %} -->
+                        <input type="hidden" name="attendance_date" value="{{ current_date }}">{{ current_date }}
+                    </td>
+                    <td class="attendance-td">
+                        <input type="hidden" name="student_id" value="{{ student[0] }}">{{ student[1] }}
+                    </td>
+                    <td class="attendance-td">
+                        <input type="hidden" name="active_course_id" value="{{ student[2] }}">{{ student[2] }}
+                    </td>
+                    <td class="attendance-td">{{ student[3] }}</td>
+                    <td class="attendance-td">
+                        <input name="attendance_status" type="radio" value="YES" id="yes" class="attendance-radio" {% if
+                            student[4]=='YES' %}checked{% endif %}>
+                        <label for="yes">Yes</label>
+                        <input name="attendance_status" type="radio" value="NO" id="no" class="attendance-radio" {% if
+                            student[4]=='NO' %}checked{% endif %}>
+                        <label for="no">No</label>
+                    </td>
+                    <td class="attendance-td"><input class="btn-update-attendance" type="submit" value="Update"></td>
+                </tr>
+        </form>
+
+        <!-- {% endif %} -->
+        </tbody>
+        {% endfor %}
+    </table>
+    {% endfor %}
+
+
+</div>
+{% endblock %}

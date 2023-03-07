@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Home - John Bryce{% endblock %}
+
+{% block content %}
+<div class="index-all">
+    <!-- <div class="hp-bg-all"> -->
+    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="true">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/static/img/1.jpg" class="d-block w-100" id="sliderPhoto" alt="...">
+            </div>
+
+        </div>
+        <button class="carousel-control-prev" type="button" id="previous" data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" id="next" type="button" data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+
+    <div class="hp-new-courses">
+        <div class="home_new_course">
+            <h3>Last Added Courses...</h3>
+            <table>
+                <tr>
+                    <th>Course</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+                {% for course in new_courses %}
+                <tr>
+                    <td>{{ course[0] }}</td>
+                    <td>{{ course[1] }}</td>
+                    <td>{{ course[2] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+
+    <div class="teacher-of-the-week">
+        <section class="recommended-teacher">
+            <h1>Teacher of the Day...</h1>
+            <img src="{{ teacher_image }}" alt="Recommended teacher photo">
+            <h3>{{ teacher_name }}</h3>
+            <hr>
+            <p>{{ teacher_name.split()[0] }} is a passionate and experienced teacher who has been teaching for over 10
+                years. If you are planning to study technology and code - {{ teacher_name.split()[0] }} is the best for
+                you!</p>
+        </section>
+
+        <section class="recommended-teacher">
+            <h1>Student of the Day...</h1>
+            <img src="{{ student_image }}" alt="Recommended teacher photo">
+            <h3>{{ student_name }}</h3>
+            <hr>
+            <p>{{ student_name.split()[0] }} is a dedicated and enthusiastic learner who takes the studies seriously. {{
+                student_name.split()[0] }} organized and proactive, always seeking to improve the knowledge and skills.
+                {{ student_name.split()[0] }} is respectful and cooperative with the teachers and peers, and has a
+                growth mindset that allows them to overcome challenges and achieve their goals.</p>
+        </section>
+
+    </div>
+
+
+    <div class="video-container">
+        <video src="/static/video/JB_Video.mp4" autoplay muted controls width="800px"></video>
+    </div>
+
+    <!-- <div class="leads-sent">
+        Thank you {{username}}, We will call you on {{phone}}.
+    </div> -->
+    <div class="leads-form-title">
+        <h1>Want to become a <b>developer</b>?</h1>
+        <h4>Leave your details below and we'll call you soon with all details</h4>
+    </div>
+
+    <div class="leads-form">
+        <form method="POST">
+            <label for="name">Name*</label>
+            <input type="text" name="name" placeholder="Name" required autofocus>
+            <label for="phone">Phone*</label>
+            <input type="tel" name="phone" placeholder="050-1234567" pattern="[0-9]{3}-[0-9]{7}" required>
+            <label for="email">Email</label>
+            <input type="email" name="email" placeholder="Email">
+            <label for="cars">City</label>
+            <select id="city" name="city" id="cities">
+                <option value="none" selected hidden>Choose a City</option>
+                <option value="Tel Aviv">Tel Aviv</option>
+                <option value="Jerusalem">Jerusalem</option>
+                <option value="Be'er Sheva">Be'er Sheva</option>
+                <option value="Haifa">Haifa</option>
+            </select>
+            <br><br>
+            <input type="checkbox" required checked> * I have read and agree to the Terms of Service
+            <input class="leads-send-button" type="submit" value="Call Me Back!">
+        </form>
+    </div>
+
+</div>
+{% endblock %}

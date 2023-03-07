@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+
+<table class="center-div">
+    <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>City</th>
+        <th>Status</th>
+    </tr>
+    {% for lead in leads %}
+    <form method="POST">
+    <tr>
+        <td>{{ lead[1] }}</td>
+        <td>{{ lead[2] }}</td>
+        <td>{{ lead[3] }}</td>
+        <td>{{ lead[4] }}</td>
+        <td>
+        <input type="hidden" name="lead_id" value="{{ lead[0] }}">
+                    <select name="status">
+                        <option value="None" selected hidden>Status</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Not Interested">Not Interested</option>
+                        <option value="Call Back">Call Back</option>
+                    </select>
+                </td>
+                <td><input type="submit" name="update_status" value="Update" class="btn-update"></td>
+                <td><input type="submit" name="delete_lead" value="Delete" class="btn-delete"></td>
+            </tr>
+    </form>
+    {% endfor %}
+    </table>
+
+{% endblock %}
