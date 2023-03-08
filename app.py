@@ -42,14 +42,7 @@ def auth():
     #     if any(route in request.full_path for route in path_student_list):
     #         return abort(403)
 
-def set_session_defaults():
-        if 'sub_navbar' not in session:
-            session['sub_navbar'] = {
-            'Admin': render_template('admin_sub_navbar.html'),
-            'Teacher': render_template('teacher_sub_navbar.html'),
-            'Student': render_template('student_sub_navbar.html'),
-            'anonymous': ''
-        }
+
                
 
 @app.route('/', methods = ['GET', 'POST'])
@@ -546,6 +539,7 @@ def search():
     #      , attendance.status
 @app.route('/attendance', methods=['GET'])
 def attendance():
+    message = time_message()
     user_id = session['user_id']
     teachers = execute_query(f"""
     SELECT teacher_id, name 
@@ -560,7 +554,7 @@ def attendance():
     WHERE teacher_id = {teachers[0][0]}
     """)
 
-    return render_template("attendance.html", active_courses=active_courses, teachers=teachers)
+    return render_template("attendance.html", active_courses=active_courses, teachers=teachers, message=message)
 
 @app.route('/attendance/<int:active_course_id>', methods=['GET', 'POST'])
 def course_attendance(active_course_id):
@@ -580,30 +574,22 @@ def course_attendance(active_course_id):
     JOIN courses ON active_courses.course_id = courses.course_id
     WHERE teacher_id = {teachers[0][0]}
     """)
+
     students = execute_query(f"""
-    SELECT students.student_id
-         , students.name
-         , active_courses.active_course_id
-         , courses.name
+    SELECT
+        active_courses.active_course_id,
+        students.name,
+        students.student_id,
+        attendance.status,
+        courses.name,
+        attendance.attend_date
     FROM active_courses
     JOIN students_courses ON active_courses.active_course_id = students_courses.active_course_id
+    JOIN students ON students_courses.student_id = students.student_id
+    LEFT JOIN attendance ON active_courses.active_course_id = attendance.active_course_id 
+    AND attendance.attend_date = '{current_date}' AND students.student_id = attendance.student_id
     JOIN courses ON active_courses.course_id = courses.course_id
-    JOIN students ON students_courses.student_id = students.student_id 
-    WHERE active_courses.teacher_id = {teachers[0][0]} AND active_courses.active_course_id = {active_course_id}
-    ORDER BY students.name
-    """)
-    attendance_records = execute_query(f"""
-    SELECT students.name
-         , active_courses.active_course_id
-         , courses.name
-         , attendance.status
-         , attendance.attend_date
-         , students.student_id
-    FROM attendance
-    JOIN students ON attendance.student_id = students.student_id 
-    JOIN active_courses ON attendance.active_course_id = active_courses.active_course_id
-    JOIN courses ON active_courses.course_id = courses.course_id
-    WHERE active_courses.active_course_id = {active_course_id} AND attendance.attend_date = '{current_date}'
+    WHERE active_courses.active_course_id = {active_course_id}
     """)
 
     if request.method == 'POST':
@@ -624,7 +610,7 @@ def course_attendance(active_course_id):
         
         return redirect(url_for('course_attendance', active_course_id=active_course_id))
 
-    return render_template("attendance_courses.html", active_courses=active_courses, teachers=teachers, message=message, current_date=current_date, students=students, attendance_records=attendance_records)
+    return render_template("attendance_courses.html", active_courses=active_courses, teachers=teachers, message=message, current_date=current_date, students=students)
 
 
 @app.route('/show_attendance', methods=['GET', 'POST'])
@@ -671,6 +657,70 @@ def show_attendance():
     return render_template("show_attendance.html", active_courses=active_courses, teachers=teachers, message=message)
 
 
+
+@app.route('/student_attendance', methods=['GET', 'POST'])
+def student_attendance():
+    students = execute_query("""
+    SELECT DISTINCT 
+    students.student_id,
+    students.name
+    FROM students
+    JOIN students_courses ON students.student_id = students_courses.student_id
+    JOIN active_courses ON students_courses.active_course_id = active_courses.active_course_id
+    JOIN attendance ON active_courses.active_course_id = attendance.active_course_id
+    """)
+
+    if 'student' in request.args:
+        student = request.args.get("student")
+
+        if student == '':
+            return redirect(request.referrer)
+        
+        courses = execute_query(f"""
+        SELECT DISTINCT active_courses.active_course_id,
+           courses.name,
+           students.name,
+        students.student_id
+        FROM active_courses
+        JOIN courses ON active_courses.course_id = courses.course_id
+        JOIN attendance ON active_courses.active_course_id = attendance.active_course_id AND students.student_id = attendance.student_id
+        JOIN students ON attendance.student_id = students.student_id
+        WHERE attendance.student_id = {student}
+        """)
+        student_id = courses[0][1]
+        student_name = courses[0][3]
+    else:
+        student_name = None
+        courses = None
+    
+    if 'course' in request.args:
+        course = request.args.get("course")
+
+        if course == '':
+            return redirect(request.referrer)
+        
+
+        attendance = execute_query(f"""
+        SELECT attendance.status,
+               attendance.attend_date,
+               courses.name,
+               active_courses.active_course_id,
+               students.name
+        FROM attendance
+        JOIN active_courses ON attendance.active_course_id = active_courses.active_course_id
+		JOIN courses ON active_courses.course_id = courses.course_id
+        JOIN students ON attendance.student_id = students.student_id
+        WHERE active_courses.active_course_id = {course}
+        """)
+
+        course_name = attendance[0][2]
+        student_name = attendance[0][4]
+
+    else:
+        course_name = None
+        attendance = None
+    
+    return render_template("student_attendance.html", students=students, student=student_name, courses=courses, course=course_name, attendance=attendance)
 
 
 if __name__ == "__main__":
